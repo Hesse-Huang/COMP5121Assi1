@@ -182,26 +182,30 @@ func runkNN(k: Int, newRecord r: Record, givenRecords: [Record], involveMiles: B
     return neighbours
 }
 
-print("计算最邻近之5个邻居：")
+// Anwser to 2a)
 let target2a = Record(memberID: -1, avaNumOfFlight: 25, avaNumOfMilesOfFlight: 2050.0, numOfDays: 790, decision: .tbd)
+print("2a) Calculating for 5 nearest neighbours with a given target:")
 print("Target - \(target2a)")
 runkNN(k: 5, newRecord: target2a, givenRecords: records).forEach {
-    print("\($0.1) - \($0.0)")
+    print("Distance = \($0.1) by \($0.0)")
 }
 
-
-print("\n尝试解答2b：")
+// Answer to 2b)
 let target2b = Record(memberID: -2, avaNumOfFlight: 58, avaNumOfMilesOfFlight: 0.0, numOfDays: 650, decision: .tbd)
+print("\n2b) Calculating for 5 nearest neighbours with a given target:")
 print("Target - \(target2b)")
-let result2b1 = runkNN(k: 5, newRecord: target2b, givenRecords: records, involveMiles: false)
-result2b1.forEach {
-    print("\($0.1) - \($0.0)")
+let neighbours2b = runkNN(k: 5, newRecord: target2b, givenRecords: records, involveMiles: false)
+neighbours2b.forEach {
+    print("Distance = \($0.1) by \($0.0)")
 }
-let records2b1 = result2b1.map({ $0.0 }).sorted(by: { $0.avaTotalMiles < $1.avaTotalMiles })
-records2b1.forEach {
-    print("avaTotalMiles = \($0.avaTotalMiles) - \($0)")
+
+// Additional 3 steps before the final answer
+func predictNumberOfMiles(by neighbours: [Neighbour]) -> Double {
+    let weighedDistances = neighbours.map { 1 / ($0.1 * $0.1) }
+    let distanceSum = weighedDistances.reduce(0, +)
+    return zip(weighedDistances, neighbours).reduce(0.0) {
+        $0 + $1.1.0.avaNumOfMilesOfFlight * ($1.0 / distanceSum)
+    }
 }
-let records2b2 = result2b1.map({ $0.0 }).sorted(by: { $0.actualTotalMiles < $1.actualTotalMiles })
-records2b2.forEach {
-    print("actualTotalMiles = \($0.actualTotalMiles) - \($0)")
-}
+
+print("Predicted average number of miles of flight is \(predictNumberOfMiles(by: neighbours2b))\n")
